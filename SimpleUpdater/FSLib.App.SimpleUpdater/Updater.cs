@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -227,7 +227,7 @@ namespace FSLib.App.SimpleUpdater
 				//下载信息时不直接下载到文件中.这样不会导致始终创建文件夹
 				Exception ex = null;
 				byte[] data = null;
-				var url = Context.RandomUrl(Context.UpdateInfoFileUrl);
+				var url = Context.UpdateInfoFileUrl;
 
 				var client = Context.CreateWebClient();
 				client.DownloadProgressChanged += (x, y) => e.ReportProgress((int)y.TotalBytesToReceive, (int)y.BytesReceived);
@@ -835,7 +835,7 @@ namespace FSLib.App.SimpleUpdater
 						Trace.TraceInformation("包【" + nextPkg.PackageName + "】开始下载");
 						rt.PostEvent(PackageDownload, this, new PackageEventArgs(nextPkg));
 						Context.ResetWebClient(client);
-						client.DownloadFileAsync(new Uri(Context.RandomUrl(Context.GetUpdatePackageFullUrl(nextPkg.PackageName))), nextPkg.LocalSavePath, nextPkg);
+						client.DownloadFileAsync(new Uri(Context.GetUpdatePackageFullUrl(nextPkg.PackageName)), nextPkg.LocalSavePath, nextPkg);
 					}
 				}
 				if (breakFlag) break;
@@ -897,10 +897,7 @@ namespace FSLib.App.SimpleUpdater
 		/// <summary> 获得当前用于安装文件的对象 </summary>
 		/// <value></value>
 		/// <remarks></remarks>
-		public FileInstaller FileInstaller
-		{
-			get { return _installer ?? (_installer = new FileInstaller()); }
-		}
+		public FileInstaller FileInstaller => _installer ?? (_installer = new FileInstaller());
 
 
 		//BMK 更新主函数 (正式更新)
@@ -920,7 +917,7 @@ namespace FSLib.App.SimpleUpdater
 			ExtractPackage(e);
 
 			//关闭主程序
-			if (!CloseApplication(e)) throw new Exception(SR.Updater_UpdateCanceledByCloseApp);
+			if (!CloseApplication(e)) throw new OperationCanceledException(SR.Updater_UpdateCanceledByCloseApp);
 
 			//运行安装前进程
 			e.PostEvent(OnExecuteExternalProcessBefore);

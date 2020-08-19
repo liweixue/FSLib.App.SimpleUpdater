@@ -1,4 +1,4 @@
-﻿namespace FSLib.App.SimpleUpdater.Defination
+namespace FSLib.App.SimpleUpdater.Defination
 {
 	using System;
 	using System.Collections.Generic;
@@ -6,7 +6,7 @@
 	using System.Text.RegularExpressions;
 
 	using Annotations;
-
+	using FSLib.App.SimpleUpdater.Dialogs;
 	using global::SimpleUpdater.Attributes;
 
 	using Wrapper;
@@ -228,6 +228,56 @@
 				OnPropertyChanged("AutoCloseSucceedWindow");
 			}
 		}
+
+		private int _autoCloseSucceedTimeout = 2000;
+		/// <summary>
+		/// 自动关闭成功通知框超时时间
+		/// </summary>
+		public int AutoCloseSucceedTimeout
+		{
+			get => _autoCloseSucceedTimeout;
+			set
+			{
+				if (value == _autoCloseSucceedTimeout)
+					return;
+				_autoCloseSucceedTimeout = value;
+				OnPropertyChanged(nameof(AutoCloseSucceedTimeout));
+			}
+		}
+
+		private bool _autoCloseFailedDialog = false;
+
+		/// <summary>
+		/// 失败或已取消的更新，通知框自动关闭
+		/// </summary>
+		public bool AutoCloseFailedDialog
+		{
+			get => _autoCloseFailedDialog;
+			set
+			{
+				if (_autoCloseFailedDialog == value)
+					return;
+				_autoCloseFailedDialog = value;
+				OnPropertyChanged(nameof(AutoCloseFailedDialog));
+			}
+		}
+
+		private int _autoCloseFailedTimeout = 2000;
+		/// <summary>
+		/// 自动关闭失败通知框超时时间
+		/// </summary>
+		public int AutoCloseFailedTimeout
+		{
+			get => _autoCloseFailedTimeout;
+			set
+			{
+				if (value == _autoCloseFailedTimeout)
+					return;
+				_autoCloseFailedTimeout = value;
+				OnPropertyChanged(nameof(AutoCloseFailedTimeout));
+			}
+		}
+
 
 		/// <summary>
 		/// 更新描述
@@ -592,10 +642,28 @@
 
 		#endregion
 
+		private DialogStyle _dialogStyle;
+
+		/// <summary>
+		/// 获得或设置对话框主题
+		/// </summary>
+		public DialogStyle DialogStyle
+		{
+			get => _dialogStyle;
+			set
+			{
+				if (_dialogStyle == value)
+					return;
+
+				_dialogStyle = value;
+				OnPropertyChanged(nameof(DialogStyle));
+			}
+		}
+
 		#region 受保护函数
 
 		/// <summary>
-		/// 
+		/// 当属性发生变更时引发
 		/// </summary>
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -607,8 +675,7 @@
 		protected virtual void OnPropertyChanged(string propertyName)
 		{
 			PropertyChangedEventHandler handler = PropertyChanged;
-			if (handler != null)
-				handler(this, new PropertyChangedEventArgs(propertyName));
+			handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 		#endregion
 	}

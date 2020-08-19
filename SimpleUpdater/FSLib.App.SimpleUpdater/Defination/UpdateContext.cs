@@ -1,4 +1,4 @@
-﻿namespace FSLib.App.SimpleUpdater.Defination
+namespace FSLib.App.SimpleUpdater.Defination
 {
 	using System;
 	using System.Collections.Generic;
@@ -62,8 +62,6 @@
 					}
 				}
 			}
-
-			AppendRandomTagInDownloadUrl = true;
 		}
 
 		/// <summary>
@@ -379,6 +377,11 @@
 		/// <remarks></remarks>
 		public string ProxyAddress { get; set; }
 
+		/// <summary> 获得或设置网络请求的 UserAgent </summary>
+		/// <value></value>
+		/// <remarks></remarks>
+		public string UserAgent { get; set; }
+
 		/// <summary> 创建新的WebClient </summary>
 		/// <returns></returns>
 		public WebClient CreateWebClient()
@@ -406,7 +409,13 @@
 		public virtual void ResetWebClient(WebClient client)
 		{
 			client.Headers.Clear();
-			client.Headers.Add(HttpRequestHeader.UserAgent, "Fish SimpleUpdater v" + Updater.UpdaterClientVersion);
+
+			var _ua = UserAgent;
+			if (String.IsNullOrEmpty(_ua))
+			{
+				_ua = "Fish SimpleUpdater v" + Updater.UpdaterClientVersion;
+			}
+			client.Headers.Add(HttpRequestHeader.UserAgent, _ua);
 			//client.Headers.Add(HttpRequestHeader.IfNoneMatch, "DisableCache");
 			client.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
 			client.Headers.Add(HttpRequestHeader.Pragma, "no-cache");
@@ -543,30 +552,6 @@
 		bool _promptUserBeforeAutomaticUpgrade;
 
 		/// <summary>
-		/// 获得或设置是否在下载地址中附加随机码以避免缓存。默认值：true
-		/// </summary>
-		public bool AppendRandomTagInDownloadUrl { get; set; }
-
-		/// <summary>
-		/// 随机化网址
-		/// </summary>
-		/// <param name="url"></param>
-		/// <returns></returns>
-		internal string RandomUrl(string url)
-		{
-			if (String.IsNullOrEmpty(url))
-				throw new ArgumentException("url is null or empty.", "url");
-
-			if (!AppendRandomTagInDownloadUrl || url.IndexOf('/') == -1 || url.IndexOf("http", StringComparison.OrdinalIgnoreCase) != 0)
-				return url;
-
-			if (url.IndexOf('?') == -1)
-				return url + "?" + new Random().NextDouble().ToString();
-
-			return url + "&" + new Random().NextDouble().ToString();
-		}
-
-		/// <summary>
 		/// 获得更新程序是否已经成功启动了
 		/// </summary>
 		public bool? IsUpdaterSuccessfullyStarted { get; internal set; }
@@ -587,6 +572,17 @@
 		/// 获得或设置是否自动关闭之前的找到更新的提示框
 		/// </summary>
 		public bool AutoClosePreviousPopup { get; set; }
+
+		private DialogStyle _dialogStyle;
+
+		/// <summary>
+		/// 获得或设置更新对话框主题配置
+		/// </summary>
+		public DialogStyle DialogStyle
+		{
+			get => UpdateInfo?.DialogStyle ?? _dialogStyle ?? DialogStyle.Default;
+			set => _dialogStyle = value;
+		}
 	}
 }
 

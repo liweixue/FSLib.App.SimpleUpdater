@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Security.Cryptography;
-
-namespace FSLib.App.SimpleUpdater.Generator
+namespace FSLib.App.SimpleUpdater.Generator.Dialogs
 {
+	using System;
 	using System.IO;
+	using System.Linq;
+	using System.Windows.Forms;
 
 	using Defination;
 
@@ -332,9 +325,22 @@ namespace FSLib.App.SimpleUpdater.Generator
 				if (MessageBox.Show("您已经设置部分文件为条件更新，这需要开启增量更新，但是当前尚未打开。这将会导致这些文件的设置失效，是否确定继续？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.OK) return;
 			}
 			//检查文件存在
-			if (System.IO.Directory.GetFiles(project.ParseFullPath(project.DestinationDirectory), "*.*", SearchOption.AllDirectories).Length > 0)
+			if (Directory.GetFiles(project.ParseFullPath(project.DestinationDirectory), "*.*", SearchOption.AllDirectories).Length > 0)
 			{
-				if (MessageBox.Show("自动更新程序将会生成一个或多个文件（包括xml、zip文件等），而您当前选择的升级包保存文件夹不是空的，这可能会导致同名的文件被覆盖。确定继续吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.OK) return;
+				if (project.CleanBeforeBuild)
+				{
+					if (MessageBox.Show("您选择了构建前清空目录，当前目标目录不为空，将会清空所有目标目录中的文件，是否继续？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.OK)
+					{
+						return;
+					}
+				}
+				else
+				{
+					if (MessageBox.Show("自动更新程序将会生成一个或多个文件（包括xml、zip文件等），而您当前选择的升级包保存文件夹不是空的，这可能会导致同名的文件被覆盖。确定继续吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.OK)
+					{
+						return;
+					}
+				}
 			}
 
 			Create();
@@ -508,7 +514,6 @@ namespace FSLib.App.SimpleUpdater.Generator
 			chkOptMustUpdate.AddDataBinding(ui, s => s.Checked, s => s.MustUpdate);
 			chkAutoEndAppDirProcesses.AddDataBinding(ui, s => s.Checked, s => s.AutoEndProcessesWithinAppDir);
 			chkStillProptUserInfo.AddDataBinding(ui, s => s.Checked, s => s.PromptUserBeforeAutomaticUpgrade);
-			chkAutoCloseSucceed.AddDataBinding(ui, s => s.Checked, s => s.AutoCloseSucceedWindow);
 			chkOptError.AddDataBinding(ui, s => s.Checked, s => s.TreatErrorAsNotUpdated);
 			chkOptRequireAdminPrivilege.AddDataBinding(ui, s => s.Checked, s => s.RequreAdminstrorPrivilege);
 			txtPackageExtension.AddDataBinding(project, s => s.Text, s => s.PackageExtension);
@@ -568,7 +573,6 @@ namespace FSLib.App.SimpleUpdater.Generator
 			chkOptMustUpdate.DataBindings.Clear();
 			chkAutoEndAppDirProcesses.DataBindings.Clear();
 			chkStillProptUserInfo.DataBindings.Clear();
-			chkAutoCloseSucceed.DataBindings.Clear();
 			chkOptError.DataBindings.Clear();
 			chkOptRequireAdminPrivilege.DataBindings.Clear();
 			txtPackageExtension.DataBindings.Clear();
